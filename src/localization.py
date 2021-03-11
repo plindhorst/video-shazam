@@ -41,7 +41,7 @@ def __get_heat_map(input_path):
     return heat_map
 
 
-def localisation(input_path):
+def localization(input_path):
     """
     finds screen position using temporal differences
     :param input_path: path to the input video
