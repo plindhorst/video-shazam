@@ -38,6 +38,7 @@ def __get_heat_map(input_path):
                 heat_map[x, y] += 1
         else:
             cap.release()
+            break
 
     # Convert heat_map to binary
     heat_map = threshold(heat_map, 19, 1)
@@ -55,39 +56,28 @@ def __get_position(heat_map):
     # Get contours
     contours, hierarchy = cv2.findContours(heat_map, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     # Get area of contours
-    rectangle = None, None, None
+    center, size, angle = None, None, None
     if len(contours) > 0:
         # Add contours together
         contours = np.concatenate(contours)
         # Get rectangle
-        rectangle = center, size, angle = cv2.minAreaRect(contours)
+        center, size, angle = cv2.minAreaRect(contours)
         # Rotate rectangle if height > width
         if size[0] < size[1]:
             size = (size[1], size[0])
             angle += 90
-            rectangle = center, size, angle
+        angle = - (180 - angle)
+    return center, size, angle
 
-    return rectangle
 
-
-def localization(input_path, debug=False):
+def localization(input_path):
     """
     finds screen position using temporal differences
-    :param debug: if true show all steps
     :param input_path: path to the input video
     :return: center, size and angle of the screen
     """
 
     heat_map = __get_heat_map(input_path)
     center, size, angle = __get_position(heat_map)
-
-    if debug:
-        im_contours = np.zeros((len(heat_map), len(heat_map[0]), 3), dtype=np.uint8)
-        im_contours += rgb(heat_map)
-        box = cv2.boxPoints((center, size, angle))
-        box = np.int0(box)
-        cv2.drawContours(im_contours, [box], 0, (0, 0, 255), 2)
-        cv2.imshow("debug", im_contours)
-        cv2.waitKey(0)
 
     return center, size, angle
