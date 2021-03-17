@@ -2,11 +2,13 @@ import argparse
 
 from src.cropping import cropping
 from src.localization import localization
+from src.stabilizing import stabilizing
 
 CROPPED_PATH = "./temp/cropped.mp4"
 
 
 def video_shazam(input_path):
+    stabilizing(input_path, "")
     screen = localization(input_path)
     cropping(screen, input_path, CROPPED_PATH)
 
