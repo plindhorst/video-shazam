@@ -2,8 +2,8 @@ import argparse
 import os
 import shutil
 
-from src.cropping import cropping
-from src.localization import localization
+from code.cropping import cropping
+from code.localization import localization
 
 TEMP_DIR = "./temp/"
 CROPPED_PATH = TEMP_DIR + "cropped.mp4"
