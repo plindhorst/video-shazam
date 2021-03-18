@@ -8,12 +8,14 @@ from code.localization import localization
 import time
 
 from code.matching import matching
+from code.util.video import save_audio
 
 VIDEOS_PATH = "./videos/"
 DATABASE_PATH = VIDEOS_PATH + "database.db"
 
 TEMP_DIR = "./temp/"
 CROPPED_PATH = TEMP_DIR + "cropped.mp4"
+AUDIO_PATH = TEMP_DIR + "audio.wav"
 
 
 def video_shazam(input_path):
@@ -21,6 +23,7 @@ def video_shazam(input_path):
         shutil.rmtree(TEMP_DIR)
     os.makedirs(TEMP_DIR)
 
+    save_audio(input_path, AUDIO_PATH)
     start_time = time.time()
 
     database = Database(DATABASE_PATH)
@@ -29,12 +32,14 @@ def video_shazam(input_path):
 
     screen = localization(input_path)
     cropping(screen, input_path, CROPPED_PATH)
-    matches = matching(CROPPED_PATH, database)
-    print(matches)
+    matches = matching(CROPPED_PATH, AUDIO_PATH, database)
+    for i, match in enumerate(matches):
+        print("Match " + str(i) + ": " + match[0] + " (" + str(match[1]) + ")")
 
     database.close()
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print("\n--- finished in %s seconds ---" % (time.time() - start_time))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Video Shazam")

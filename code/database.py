@@ -1,4 +1,5 @@
 import ntpath
+import os
 import sqlite3 as sqlite
 
 import pandas as pd
@@ -16,13 +17,13 @@ class Database:
 
     def create(self):
         self.conn.execute(
-            "CREATE TABLE IF NOT EXISTS videos (name TEXT PRIMARY KEY NOT NULL, duration INT NOT NULL, colorhists TEXT, colorhistdiffs TEXT, tempdiffs TEXT);")
+            "CREATE TABLE IF NOT EXISTS videos (name TEXT PRIMARY KEY NOT NULL, duration INT NOT NULL, colorhists TEXT, colorhistdiffs TEXT, tempdiffs TEXT, audiopowers TEXT);")
 
-    def insert_features(self, name, duration, colorhists, colorhistdiffs, tempdiffs):
+    def insert_features(self, name, duration, colorhists, colorhistdiffs, tempdiffs, audiopowers):
         try:
             self.conn.execute(
-                "INSERT INTO videos (name, duration, colorhists, colorhistdiffs, tempdiffs) VALUES ('" + name + "', " + str(
-                    duration) + ", '" + colorhists + "', '" + colorhistdiffs + "', '" + tempdiffs + "')");
+                "INSERT INTO videos (name, duration, colorhists, colorhistdiffs, tempdiffs, audiopowers) VALUES ('" + name + "', " + str(
+                    duration) + ", '" + colorhists + "', '" + colorhistdiffs + "', '" + tempdiffs + "', '" + audiopowers + "')");
         except sqlite.IntegrityError:
             print("IntegrityError: duplicate key \"" + name + "\"")
 
@@ -40,15 +41,17 @@ class Database:
 
     def build(self, videos_path):
         videos = get_video_list(videos_path)
+        videos = ["./videos/Asteroid_Discovery.mp4", "./videos/BlackKnight.avi"]
         for video in videos:
             name = ntpath.basename(video)
             print("Creating database features for: \"" + name + "\"")
 
-            features = get_features(video)
+            features = get_features(video, os.path.splitext(video)[0] + '.wav')
 
             str_colorhists = pd.Series(features["colorhists"]).to_json(orient='values')
             str_colorhistdiffs = pd.Series(features["colorhistdiffs"]).to_json(orient='values')
             str_tempdiffs = pd.Series(features["tempdiffs"]).to_json(orient='values')
+            str_audiopowers = pd.Series(features["audiopowers"]).to_json(orient='values')
 
-            self.insert_features(name, get_duration(video), str_colorhists, str_colorhistdiffs, str_tempdiffs)
+            self.insert_features(name, get_duration(video), str_colorhists, str_colorhistdiffs, str_tempdiffs, str_audiopowers)
             self.conn.commit()

@@ -1,4 +1,10 @@
 import cv2
+import moviepy.editor as mp
+
+
+def save_audio(video, output):
+    my_clip = mp.VideoFileClip(r"" + video)
+    my_clip.audio.write_audiofile(r"" + output, verbose=False, logger=None)
 
 
 def frame_to_audio(frame_nbr, frame_rate, fs, audio):

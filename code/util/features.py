@@ -2,6 +2,9 @@ import glob
 
 import cv2
 import numpy as np
+from scipy.io import wavfile
+
+from code.util.video import frame_to_audio, get_frame_rate
 
 
 def get_video_list(videos_path):
@@ -14,10 +17,14 @@ def get_video_list(videos_path):
     return videos
 
 
-def get_features(video):
+def get_features(video, audio):
+    frame_rate = get_frame_rate(video)
+    fs, signal = wavfile.read(audio)
+
     features = {'colorhists': [], 'tempdiffs': [], 'audiopowers': [], 'mfccs': [], 'colorhistdiffs': []}
     cap = cv2.VideoCapture(video)
     prev_frame = None
+    n = 0
     while cap.isOpened():
         ret, frame = cap.read()
         if ret:
@@ -27,6 +34,9 @@ def get_features(video):
                 features["colorhistdiffs"].append(colorhist_diff(colorhist(prev_frame), colorhist(frame)))
                 features["tempdiffs"].append(temporal_diff(prev_frame, frame, 10))
 
+            audio_frame = frame_to_audio(n, frame_rate, fs, signal)
+            features["audiopowers"].append(audio_powers(audio_frame))
+            n += 1
             prev_frame = frame
         else:
             cap.release()
