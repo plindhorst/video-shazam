@@ -13,14 +13,9 @@ def histNormalization(path):
         ret, frame = cap.read()
 
         if ret:
-            # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            img = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             gray = cv2.equalizeHist(gray)
-            plt.plot(gray)
-            plt.show()
-            backtorgb = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)
-            res = np.hstack((frame, backtorgb))  # stacking images side-by-side
-            out.write(res)
+            out.write(gray)
             # cv2.imshow("frame", frame)
             # cv2.waitKey(0)
         else:
@@ -45,14 +40,23 @@ def brightness(path):
     while cap.isOpened():
         ret, frame = cap.read()
         if ret:
-            yen_threshold = threshold_yen(frame)
-            bright = rescale_intensity(frame, (0, yen_threshold), (0, 255))
-            out.write(bright)
+            # yen_threshold = threshold_yen(frame)
+            # bright = rescale_intensity(frame, (0, yen_threshold), (0, 255))
+            # out.write(bright)
             # cv2.imshow("frame", frame)
             # cv2.waitKey(0)
+            hist, bins = np.histogram(frame.flatten(), 256, [0, 256])
+
+            cdf = hist.cumsum()
+            cdf_normalized = cdf * hist.max() / cdf.max()
+            cdf_m = np.ma.masked_equal(cdf, 0)
+            cdf_m = (cdf_m - cdf_m.min()) * 255 / (cdf_m.max() - cdf_m.min())
+            cdf = np.ma.filled(cdf_m, 0).astype('uint8')
+            im = cdf[frame]
+            out.write(im)
         else:
             out.release()
             cap.release()
             break
 
-brightness('./input/SuperCoilsEN/SuperCoilsEN1.mp4')
+brightness('./temp/cropped.mp4')
