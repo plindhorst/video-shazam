@@ -1,12 +1,19 @@
 import argparse
+import os
+import shutil
 
 from src.cropping import cropping
 from src.localization import localization
 
-CROPPED_PATH = "./temp/cropped.mp4"
+TEMP_DIR = "./temp/"
+CROPPED_PATH = TEMP_DIR + "cropped.mp4"
 
 
 def video_shazam(input_path):
+    if os.path.exists(TEMP_DIR):
+        shutil.rmtree(TEMP_DIR)
+    os.makedirs(TEMP_DIR)
+
     screen = localization(input_path)
     cropping(screen, input_path, CROPPED_PATH)
 
