@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from src.util.image import grey_scale, blur, threshold, opening, rgb
+from code.util.image import grey_scale, blur, threshold, opening, rgb
 
 
 def __get_heat_map(input_path):
