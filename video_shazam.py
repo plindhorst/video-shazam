@@ -76,8 +76,7 @@ def video_shazam(input_path, verbose=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Video Shazam")
-    parser.add_argument("--input_path", help="path to input video",
-                        default="./input/BlackKnight/BlackKnight_fixed_short1.mp4")
+    parser.add_argument("--input_path", help="path to input video")
     parser.add_argument("--verbose", help="produce log output", default=False, type=bool)
     args = parser.parse_args()
 
