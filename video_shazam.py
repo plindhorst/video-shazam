@@ -1,4 +1,5 @@
 import argparse
+import ntpath
 import os
 import shutil
 import datetime
@@ -59,7 +60,7 @@ def video_shazam(input_path, verbose=False):
 
     matches = matching(CROPPED_PATH, AUDIO_PATH, database, verbose)
 
-    log("\n--- Results ---", verbose)
+    log("\n--- Results for \"" + ntpath.basename(input_path) + "\" ---", verbose)
     n = 3
     for i, match in enumerate(matches):
         if i == n:

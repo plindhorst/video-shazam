@@ -88,7 +88,7 @@ class Database:
             # Check if video is already in database
             name = ntpath.basename(video)
             if name in videos_database:
-                log("Error: video features already in database for \"" + name + "\"", verbose)
+                log("Video features already in database for \"" + name + "\"", verbose)
                 continue
             log("Creating database features for \"" + name + "\"", verbose)
 
