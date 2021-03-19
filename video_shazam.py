@@ -23,6 +23,13 @@ AUDIO_PATH = TEMP_DIR + "audio.wav"
 
 
 def video_shazam(input_path, verbose=False):
+    """
+    get top 3 matches
+    :param input_path: path of input video
+    :param verbose: option to display information
+    :return: list of top 3 matches in order
+    """
+
     if get_duration(input_path) < MIN_DURATION:
         log("\nError: input video is shorter than " + str(MIN_DURATION) + "s", verbose)
         return None
@@ -62,6 +69,8 @@ def video_shazam(input_path, verbose=False):
     database.close()
 
     log("\n--- Finished in " + str(datetime.timedelta(seconds=(time.time() - start_time))) + " ---", verbose)
+
+    return matches[:n - 1]
 
 
 if __name__ == "__main__":

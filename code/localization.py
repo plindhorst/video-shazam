@@ -77,6 +77,13 @@ def __get_position(heat_map):
 
 
 def __write_image(input_path, heat_map, rectangle, verbose=False):
+    """
+    write debug image to temp folder
+    :param input_path: path of input video
+    :param heat_map: heat map of temporal differences
+    :param rectangle: screen rectangle
+    :param verbose: option to display information
+    """
     heat_map = rgb(heat_map)
     cv2.drawContours(heat_map, [np.int0(cv2.boxPoints(rectangle))], 0, (0, 0, 255), 1)
     log_image(heat_map, "heat_map", verbose)
@@ -90,6 +97,7 @@ def localization(input_path, verbose=False):
     """
     finds screen position using temporal differences
     :param input_path: path to the input video
+    :param verbose: option to display information
     :return: center, size and angle of the screen
     """
 
