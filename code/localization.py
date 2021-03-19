@@ -41,9 +41,13 @@ def __get_heat_map(input_path):
             break
 
     # Convert heat_map to binary
-    heat_map = threshold(heat_map, 19, 1)
-    # Perform erosion followed by dilation
-    heat_map = opening(heat_map, 2)
+    # and perform erosion followed by dilation
+    if len(np.nonzero(heat_map)[0]) >= 30000:
+        heat_map = threshold(heat_map, 29, 1)
+        heat_map = opening(heat_map, 6)
+    else:
+        heat_map = threshold(heat_map, 19, 1)
+        heat_map = opening(heat_map, 3)
     return heat_map
 
 
@@ -66,7 +70,7 @@ def __get_position(heat_map):
         if size[0] < size[1]:
             size = (size[1], size[0])
             angle += 90
-        angle = - (180 - angle)
+            angle = - (180 - angle)
     return center, size, angle
 
 

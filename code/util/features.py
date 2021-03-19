@@ -7,6 +7,13 @@ from scipy.io import wavfile
 from code.util.video import frame_to_audio, get_frame_rate
 
 
+def normalize(data):
+    if np.max == 0:
+        return data
+    else:
+        return data / np.max(data)
+
+
 def get_video_list(videos_path):
     video_types = ('*.mp4', '*.avi')
     audio_types = ('*.wav')

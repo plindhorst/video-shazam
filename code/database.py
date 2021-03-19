@@ -5,6 +5,7 @@ import sqlite3 as sqlite
 import pandas as pd
 
 from code.util.features import get_features, get_video_list
+from code.util.log import log
 from code.util.video import get_duration
 
 
@@ -19,13 +20,13 @@ class Database:
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS videos (name TEXT PRIMARY KEY NOT NULL, duration INT NOT NULL, colorhists TEXT, colorhistdiffs TEXT, tempdiffs TEXT, audiopowers TEXT);")
 
-    def insert_features(self, name, duration, colorhists, colorhistdiffs, tempdiffs, audiopowers):
+    def insert_features(self, name, duration, colorhists, colorhistdiffs, tempdiffs, audiopowers, verbose=False):
         try:
             self.conn.execute(
                 "INSERT INTO videos (name, duration, colorhists, colorhistdiffs, tempdiffs, audiopowers) VALUES ('" + name + "', " + str(
                     duration) + ", '" + colorhists + "', '" + colorhistdiffs + "', '" + tempdiffs + "', '" + audiopowers + "')");
         except sqlite.IntegrityError:
-            print("IntegrityError: duplicate key \"" + name + "\"")
+            log("IntegrityError: duplicate key \"" + name + "\"", verbose)
 
     def get_features(self, name):
         rows = self.conn.execute("SELECT * from videos WHERE name = '" + name + "'")
@@ -39,12 +40,15 @@ class Database:
             videos.append(row[0])
         return videos
 
-    def build(self, videos_path):
+    def build(self, videos_path, verbose=False):
         videos = get_video_list(videos_path)
-        videos = ["./videos/Asteroid_Discovery.mp4", "./videos/BlackKnight.avi"]
+        videos_database = self.get_video_names()
         for video in videos:
             name = ntpath.basename(video)
-            print("Creating database features for: \"" + name + "\"")
+            if name in videos_database:
+                log("Error: video features already in database for \"" + name + "\"", verbose)
+                continue
+            log("Creating database features for \"" + name + "\"", verbose)
 
             features = get_features(video, os.path.splitext(video)[0] + '.wav')
 
@@ -53,5 +57,6 @@ class Database:
             str_tempdiffs = pd.Series(features["tempdiffs"]).to_json(orient='values')
             str_audiopowers = pd.Series(features["audiopowers"]).to_json(orient='values')
 
-            self.insert_features(name, get_duration(video), str_colorhists, str_colorhistdiffs, str_tempdiffs, str_audiopowers)
+            self.insert_features(name, get_duration(video), str_colorhists, str_colorhistdiffs, str_tempdiffs,
+                                 str_audiopowers, verbose)
             self.conn.commit()
