@@ -1,6 +1,7 @@
 temp/
 .idea/
 videos/*.wav
+input/
 
 
 # Byte-compiled / optimized / DLL files
