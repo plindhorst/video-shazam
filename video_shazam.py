@@ -10,7 +10,9 @@ import time
 
 from code.matching import matching
 from code.util.log import log
-from code.util.video import save_audio
+from code.util.video import save_audio, get_duration
+
+MIN_DURATION = 30
 
 VIDEOS_PATH = "./videos/"
 DATABASE_PATH = VIDEOS_PATH + "database.db"
@@ -21,9 +23,16 @@ AUDIO_PATH = TEMP_DIR + "audio.wav"
 
 
 def video_shazam(input_path, verbose=False):
-    if os.path.exists(TEMP_DIR):
-        shutil.rmtree(TEMP_DIR)
-    os.makedirs(TEMP_DIR)
+    if get_duration(input_path) < MIN_DURATION:
+        log("\nError: input video is shorter than " + str(MIN_DURATION) + "s", verbose)
+        return None
+    try:
+        if os.path.exists(TEMP_DIR):
+            shutil.rmtree(TEMP_DIR)
+        os.makedirs(TEMP_DIR)
+    except PermissionError:
+        log("\nError: could not create temp folder", verbose)
+        return None
 
     start_time = time.time()
 
@@ -36,7 +45,7 @@ def video_shazam(input_path, verbose=False):
     log("\n--- Pre-processing started ---", verbose)
 
     save_audio(input_path, AUDIO_PATH)
-    screen = localization(input_path)
+    screen = localization(input_path, verbose)
     cropping(screen, input_path, CROPPED_PATH)
 
     log("\n--- Matching started ---", verbose)

@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 
 from code.util.image import grey_scale, blur, threshold, opening, rgb
+from code.util.log import log_image
+from code.util.video import get_median_frame
 
 
 def __get_heat_map(input_path):
@@ -47,7 +49,7 @@ def __get_heat_map(input_path):
         heat_map = opening(heat_map, 6)
     else:
         heat_map = threshold(heat_map, 19, 1)
-        heat_map = opening(heat_map, 3)
+        heat_map = opening(heat_map, 2)
     return heat_map
 
 
@@ -74,7 +76,17 @@ def __get_position(heat_map):
     return center, size, angle
 
 
-def localization(input_path):
+def __write_image(input_path, heat_map, rectangle, verbose=False):
+    heat_map = rgb(heat_map)
+    cv2.drawContours(heat_map, [np.int0(cv2.boxPoints(rectangle))], 0, (0, 0, 255), 1)
+    log_image(heat_map, "heat_map", verbose)
+
+    frame = get_median_frame(input_path)
+    cv2.drawContours(frame, [np.int0(cv2.boxPoints(rectangle))], 0, (0, 0, 255), 1)
+    log_image(frame, "screen_contour", verbose)
+
+
+def localization(input_path, verbose=False):
     """
     finds screen position using temporal differences
     :param input_path: path to the input video
@@ -83,5 +95,7 @@ def localization(input_path):
 
     heat_map = __get_heat_map(input_path)
     center, size, angle = __get_position(heat_map)
+
+    __write_image(input_path, heat_map, (center, size, angle), verbose)
 
     return center, size, angle

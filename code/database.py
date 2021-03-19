@@ -6,7 +6,7 @@ import pandas as pd
 
 from code.util.features import get_features, get_video_list
 from code.util.log import log
-from code.util.video import get_duration
+from code.util.video import get_duration, save_audio
 
 
 class Database:
@@ -50,7 +50,9 @@ class Database:
                 continue
             log("Creating database features for \"" + name + "\"", verbose)
 
-            features = get_features(video, os.path.splitext(video)[0] + '.wav')
+            audio_path = os.path.splitext(video)[0] + '.wav'
+            save_audio(video, audio_path)
+            features = get_features(video, audio_path)
 
             str_colorhists = pd.Series(features["colorhists"]).to_json(orient='values')
             str_colorhistdiffs = pd.Series(features["colorhistdiffs"]).to_json(orient='values')

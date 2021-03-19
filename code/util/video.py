@@ -2,6 +2,14 @@ import cv2
 import moviepy.editor as mp
 
 
+def get_median_frame(video):
+    cap = cv2.VideoCapture(video)
+    i = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) / 2)
+    cap.set(1, i)
+    ret, frame = cap.read()
+    return frame
+
+
 def save_audio(video, output):
     my_clip = mp.VideoFileClip(r"" + video)
     my_clip.audio.write_audiofile(r"" + output, verbose=False, logger=None)
