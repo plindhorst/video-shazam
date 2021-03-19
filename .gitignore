@@ -1,5 +1,6 @@
 temp/
 .idea/
+videos/*.wav
 
 
 # Byte-compiled / optimized / DLL files
@@ -131,3 +132,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+videos/database.db

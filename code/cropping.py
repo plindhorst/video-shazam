@@ -14,6 +14,8 @@ def __crop_image(im, rectangle):
     im_crop = cv2.warpAffine(im, rotation_matrix, im.shape[1::-1], flags=cv2.INTER_LINEAR)
     # crop image
     im_crop = cv2.getRectSubPix(im_crop, (int(size[0]), int(size[1])), center)
+    im_crop = cv2.resize(im_crop, (640, 480), interpolation=cv2.INTER_AREA)
+
     return im_crop
 
 
@@ -29,7 +31,7 @@ def cropping(rectangle, input_path, output_path):
     cap = cv2.VideoCapture(input_path)
 
     codec = cv2.VideoWriter_fourcc(*'mp4v')
-    writer = cv2.VideoWriter(output_path, codec, 30.0, (int(rectangle[1][0]), int(rectangle[1][1])))
+    writer = cv2.VideoWriter(output_path, codec, 30.0, (640, 480))
 
     while cap.isOpened():
         ret, frame = cap.read()

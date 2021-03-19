@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 
 from code.util.image import grey_scale, blur, threshold, opening, rgb
+from code.util.log import log_image
+from code.util.video import get_median_frame
 
 
 def __get_heat_map(input_path):
@@ -41,9 +43,13 @@ def __get_heat_map(input_path):
             break
 
     # Convert heat_map to binary
-    heat_map = threshold(heat_map, 19, 1)
-    # Perform erosion followed by dilation
-    heat_map = opening(heat_map, 2)
+    # and perform erosion followed by dilation
+    if len(np.nonzero(heat_map)[0]) >= 30000:
+        heat_map = threshold(heat_map, 29, 1)
+        heat_map = opening(heat_map, 6)
+    else:
+        heat_map = threshold(heat_map, 19, 1)
+        heat_map = opening(heat_map, 2)
     return heat_map
 
 
@@ -66,18 +72,38 @@ def __get_position(heat_map):
         if size[0] < size[1]:
             size = (size[1], size[0])
             angle += 90
-        angle = - (180 - angle)
+            angle = - (180 - angle)
     return center, size, angle
 
 
-def localization(input_path):
+def __write_image(input_path, heat_map, rectangle, verbose=False):
+    """
+    write debug image to temp folder
+    :param input_path: path of input video
+    :param heat_map: heat map of temporal differences
+    :param rectangle: screen rectangle
+    :param verbose: option to display information
+    """
+    heat_map = rgb(heat_map)
+    cv2.drawContours(heat_map, [np.int0(cv2.boxPoints(rectangle))], 0, (0, 0, 255), 1)
+    log_image(heat_map, "heat_map", verbose)
+
+    frame = get_median_frame(input_path)
+    cv2.drawContours(frame, [np.int0(cv2.boxPoints(rectangle))], 0, (0, 0, 255), 1)
+    log_image(frame, "screen_contour", verbose)
+
+
+def localization(input_path, verbose=False):
     """
     finds screen position using temporal differences
     :param input_path: path to the input video
+    :param verbose: option to display information
     :return: center, size and angle of the screen
     """
 
     heat_map = __get_heat_map(input_path)
     center, size, angle = __get_position(heat_map)
+
+    __write_image(input_path, heat_map, (center, size, angle), verbose)
 
     return center, size, angle
