@@ -30,7 +30,7 @@ def __get_heat_map(input_path):
             # Remove noise
             im = blur(im, 11)
             # Convert image to binary
-            im = threshold(im, 19, 5)
+            im = threshold(im, 19, 9)
             # Find positions of differences
             xs, ys = np.nonzero(im)
 
@@ -43,13 +43,9 @@ def __get_heat_map(input_path):
             break
 
     # Convert heat_map to binary
-    # and perform erosion followed by dilation
-    if len(np.nonzero(heat_map)[0]) >= 30000:
-        heat_map = threshold(heat_map, 29, 1)
-        heat_map = opening(heat_map, 6)
-    else:
-        heat_map = threshold(heat_map, 19, 1)
-        heat_map = opening(heat_map, 2)
+    heat_map = threshold(heat_map, 19, 1)
+    # perform erosion followed by dilation
+    heat_map = opening(heat_map, 5)
     return heat_map
 
 

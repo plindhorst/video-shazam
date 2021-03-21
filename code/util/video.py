@@ -1,5 +1,17 @@
+import datetime
+
 import cv2
 import moviepy.editor as mp
+
+
+def format_duration(seconds):
+    """
+    formats seconds into H:m:s format
+    :param seconds: duration of video
+    :return: string
+    """
+    duration = str(datetime.timedelta(seconds=seconds))
+    return duration[:duration.find(".")]
 
 
 def get_median_frame(video):
