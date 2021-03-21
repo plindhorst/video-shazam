@@ -2,17 +2,16 @@ import argparse
 import ntpath
 import os
 import shutil
-import datetime
+import time
 
 from code.cropping import cropping
 from code.database import Database
 from code.localization import localization
-import time
-
 from code.matching import matching
 from code.util.log import log
-from code.util.video import save_audio, get_duration
+from code.util.video import get_duration, format_duration
 
+N_MATCHES = 3
 MIN_DURATION = 30
 
 VIDEOS_PATH = "./videos/"
@@ -30,6 +29,9 @@ def video_shazam(input_path, verbose=False):
     :param verbose: option to display information
     :return: list of top 3 matches in order
     """
+    if not os.path.exists(TEMP_DIR):
+        log("\nError: input video not found \"" + input_path + "\"", verbose)
+        return None
 
     if get_duration(input_path) < MIN_DURATION:
         log("\nError: input video is shorter than " + str(MIN_DURATION) + "s", verbose)
@@ -52,32 +54,31 @@ def video_shazam(input_path, verbose=False):
 
     log("\n--- Pre-processing started ---", verbose)
 
-    save_audio(input_path, AUDIO_PATH)
     screen = localization(input_path, verbose)
     cropping(screen, input_path, CROPPED_PATH)
 
     log("\n--- Matching started ---", verbose)
 
-    matches = matching(CROPPED_PATH, AUDIO_PATH, database, verbose)
+    matches = matching(CROPPED_PATH, database, verbose)
 
     log("\n--- Results for \"" + ntpath.basename(input_path) + "\" ---", verbose)
-    n = 3
+
     for i, match in enumerate(matches):
-        if i == n:
+        if i == N_MATCHES:
             break
         log("Match " + str(i + 1) + ": " + match[0] + " (" + str(match[1]) + ")", verbose)
 
     database.close()
 
-    log("\n--- Finished in " + str(datetime.timedelta(seconds=(time.time() - start_time))) + " ---", verbose)
+    log("\n--- Finished in " + format_duration((time.time() - start_time)) + " ---", verbose)
 
-    return matches[:n - 1]
+    return matches[:N_MATCHES - 1]
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Video Shazam")
     parser.add_argument("--input_path", help="path to input video")
-    parser.add_argument("--verbose", help="produce log output", default=False, type=bool)
+    parser.add_argument("--verbose", help="produce log output", default=True, type=bool)
     args = parser.parse_args()
 
     video_shazam(args.input_path, args.verbose)
