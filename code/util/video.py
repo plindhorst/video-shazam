@@ -34,7 +34,9 @@ def save_audio(video, output):
     :param output: path of audio to be saved
     """
     my_clip = mp.VideoFileClip(r"" + video)
+    audio = r"" + output
     my_clip.audio.write_audiofile(r"" + output, verbose=False, logger=None)
+    return audio
 
 
 def frame_to_audio(frame_nbr, frame_rate, fs, audio):

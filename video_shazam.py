@@ -9,8 +9,9 @@ from code.database import Database
 from code.localization import localization
 from code.matching import matching
 from code.util.log import log
-from code.util.video import get_duration, format_duration
+from code.util.video import get_duration, format_duration, save_audio
 from code.stabilizing import stabilizing
+from code.Noise_Reduction import reduce_Noise
 
 N_MATCHES = 3
 MIN_DURATION = 30
@@ -57,8 +58,10 @@ def video_shazam(input_path, verbose=False):
     
     
     # stabilizing(input_path, "")
+    audio = save_audio(input_path, AUDIO_PATH)
     screen = localization(input_path, verbose)
     cropping(screen, input_path, CROPPED_PATH)
+    reduce_Noise(audio, AUDIO_PATH)
 
     log("\n--- Matching started ---", verbose)
 
