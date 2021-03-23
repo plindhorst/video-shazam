@@ -61,7 +61,7 @@ def video_shazam(input_path, verbose=False):
     audio = save_audio(input_path, AUDIO_PATH)
     screen = localization(input_path, verbose)
     cropping(screen, input_path, CROPPED_PATH)
-    reduce_Noise(audio, AUDIO_PATH)
+    # reduce_Noise(audio, AUDIO_PATH)
 
     log("\n--- Matching started ---", verbose)
 
